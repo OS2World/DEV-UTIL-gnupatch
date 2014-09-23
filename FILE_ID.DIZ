@@ -1,0 +1,8 @@
+GNU patch, compiled with emx+gcc.
+For OS/2 and Win32.
+- version 2.5
+- requires emx 0.9c or newer runtime
+  under OS/2 and RSXNT 1.40 or newer
+  runtime under Win32
+- compiled by rommel@ars.de
+- ftp://ftp.leo.org/pub/comp/os/os2/leo/...

@@ -1,0 +1,36 @@
+# Makefile for emx+gcc
+
+os2release:
+	$(MAKE) -f Makefile.emx patch.exe \
+	CC="gcc -Zomf -O" O=".obj" \
+	LFLAGS="-s -Zcrtdll -Zstack 512"
+w32release:
+	$(MAKE) -f Makefile.emx patch.exe \
+	CC="gcc -O -Zwin32 -Zcrtdll=crtrsxnt" O=".o" \
+	LFLAGS="-s -Zstack 512"
+debug:
+	$(MAKE) -f Makefile.emx patch.exe \
+	CC="gcc -g" O=".o" LFLAGS="-Zwin32"
+
+OBJ =	patch$O pch$O inp$O util$O version$O backupfile$O \
+	getopt$O getopt1$O addext$O argmatch$O basename$O \
+	maketime$O partime$O quotearg$O
+
+CFLAGS = -DHAVE_CONFIG_H -DDEBUGGING
+
+.SUFFIXES: .c $O
+
+.c$O:
+	$(CC) $(CFLAGS) -I. -c $*.c
+
+patch.exe: $(OBJ)
+	$(CC) $(OBJ) -o $@ $(LFLAGS)
+
+$(OBJ): config.h
+
+config.h: config.h.emx
+	copy config.h.emx $@
+
+clean:
+	-del *.o *.obj config.h
+

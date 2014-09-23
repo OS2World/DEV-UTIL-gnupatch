@@ -1,0 +1,126 @@
+Only in new: README.EMX
+Only in new: FILE_ID.DIZ
+Only in new: patches.emx
+Only in new: Makefile.emx
+Only in new: config.h.emx
+Only in new: patchlevel.h
+diff -cbr orig/patch.c new/patch.c
+*** orig/patch.c	Sat Jul  5 12:32:22 1997
+--- new/patch.c	Sun Jan 18 12:20:14 1998
+***************
+*** 71,77 ****
+  static void init_output PARAMS ((char const *, struct outstate *));
+  static void init_reject PARAMS ((char const *));
+  static void reinitialize_almost_everything PARAMS ((void));
+! static void usage PARAMS ((FILE *, int)) __attribute__((noreturn));
+  
+  static int make_backups;
+  static int backup_if_mismatch;
+--- 71,77 ----
+  static void init_output PARAMS ((char const *, struct outstate *));
+  static void init_reject PARAMS ((char const *));
+  static void reinitialize_almost_everything PARAMS ((void));
+! void usage PARAMS ((FILE *, int)) __attribute__((noreturn));
+  
+  static int make_backups;
+  static int backup_if_mismatch;
+***************
+*** 564,570 ****
+  0
+  };
+  
+! static void
+  usage (stream, status)
+       FILE *stream;
+       int status;
+--- 564,570 ----
+  0
+  };
+  
+! void
+  usage (stream, status)
+       FILE *stream;
+       int status;
+***************
+*** 578,583 ****
+--- 578,585 ----
+      }
+    else
+      {
++       version();
++       putc('\n', stream);
+        fprintf (stream, "Usage: %s [OPTION]... [ORIGFILE [PATCHFILE]]\n\n",
+  	       Argv[0]);
+        for (p = option_help;  *p;  p++)
+diff -cbr orig/pch.c new/pch.c
+*** orig/pch.c	Mon Jul 21 19:59:46 1997
+--- new/pch.c	Sat Jan 17 18:06:22 1998
+***************
+*** 101,106 ****
+--- 101,108 ----
+      if (!filename || !*filename || strEQ (filename, "-"))
+        {
+  	file_offset stdin_pos;
++         if (isatty(STDIN_FILENO))
++           usage(stdout, 0);
+  #if HAVE_SETMODE
+  	if (binary_transput)
+  	  {
+***************
+*** 999,1004 ****
+--- 1001,1007 ----
+  		context = 0;
+  		break;
+  	    case '\t': case '\n':	/* assume spaces got eaten */
++ 	    case '\r':
+  		s = buf;
+  		if (*buf == '\t') {
+  		    s++;
+diff -cbr orig/util.c new/util.c
+*** orig/util.c	Thu Jul 10 10:16:12 1997
+--- new/util.c	Sun Jan 18 12:23:36 1998
+***************
+*** 152,157 ****
+--- 152,158 ----
+        if (debug & 4)
+  	say ("renaming `%s' to `%s'\n", from, to);
+  
++       remove( to);
+        if (rename (from, to) != 0)
+  	{
+  	  int to_dir_known_to_exist = 0;
+***************
+*** 165,171 ****
+  		return;
+  	    }
+  
+! 	  if (errno == EXDEV)
+  	    {
+  	      if (! backup)
+  		{
+--- 165,171 ----
+  		return;
+  	    }
+  
+! 	  if (errno == EXDEV || errno == EINVAL /* happens on emx */)
+  	    {
+  	      if (! backup)
+  		{
+diff -cbr orig/version.c new/version.c
+*** orig/version.c	Wed May 21 20:29:20 1997
+--- new/version.c	Sat Jan 17 16:00:44 1998
+***************
+*** 25,30 ****
+  void
+  version()
+  {
+!   printf ("%s %s\n%s\n\n%s\n\n%s\n", program_name, PATCH_VERSION,
+  	  copyright_string, free_software_msgid, authorship_msgid);
+  }
+--- 25,30 ----
+  void
+  version()
+  {
+!   printf ("\nGNU %s %s\n\n%s\n\n%s\n\n%s\n", program_name, PATCH_VERSION,
+  	  copyright_string, free_software_msgid, authorship_msgid);
+  }
